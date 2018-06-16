@@ -1,108 +1,102 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { getRecipes } from '../actions/index';
-import RecipeListItem from '../components/recipe_list_item';
+import React, { Component } from 'react'
+import { connect } from 'react-redux'
+// import { bindActionCreators } from 'redux'
+import { getRecipes } from '../actions/index'
+import RecipeListItem from '../components/recipe_list_item'
 
 class RecipeList extends Component {
   constructor(props) {
-    super(props);
+    super(props)
 
-    this.props.getRecipes();
-    this.noRecipes = 'No recipes found. Add your first recipe now!';
-    this.state = { addForm: '' };
+    this.props.getRecipes()
+    this.noRecipes = 'No recipes found. Add your first recipe now!'
+    this.state = { addForm: '' }
   }
 
-  removeHandler(storageKey) {
-    console.log(localStorage.getItem(storageKey));
-    localStorage.removeItem(storageKey);
-    this.props.getRecipes();
+  removeHandler = storageKey => e => {
+    console.log(localStorage.getItem(storageKey))
+    localStorage.removeItem(storageKey)
+    this.props.getRecipes()
   }
 
-  editHandler(event, storageKey) {
-    event.preventDefault();
+  editHandler = (event, storageKey) => {
+    event.preventDefault()
 
-    let recipeTitle = event.target[0].value;
-    let recipeIngridients = event.target[1].value;
-    recipeIngridients = recipeIngridients.split(',').join('__');
-    console.log(recipeIngridients);
-    localStorage.setItem(storageKey, recipeTitle + '__' + recipeIngridients);
-    this.props.getRecipes();
+    let recipeTitle = event.target[0].value
+    let recipeIngridients = event.target[1].value
+    recipeIngridients = recipeIngridients.split(',').join('__')
+    console.log(recipeIngridients)
+    localStorage.setItem(storageKey, recipeTitle + '__' + recipeIngridients)
+    this.props.getRecipes()
   }
 
-  renderRecipeList() {
-    let recipes = [];
+  renderRecipeList = () => {
+    let recipes = []
 
     for (let storageKey in this.props.recipes) {
       let recipeItem = (
         <RecipeListItem
-          removeHandler={this.removeHandler.bind(this)}
-          editHandler = {this.editHandler.bind(this)}
+          removeHandler={this.removeHandler}
+          editHandler = {this.editHandler}
           recipe={this.props.recipes[storageKey]}
           key={storageKey + Math.round(Math.random * 100)}
           storageKey={storageKey} />
-      );
+      )
 
-      recipes.push(recipeItem);
+      recipes.push(recipeItem)
     }
 
-    return recipes;
+    return recipes
   }
 
-  addHandler(event) {
-    event.preventDefault();
+  addHandler = (event) => {
+    event.preventDefault()
 
-    let recipeTitle = event.target[0].value;
-    let recipeIngridients = event.target[1].value;
-    recipeIngridients = recipeIngridients.split(',').join('__');
+    let recipeTitle = event.target[0].value
+    let recipeIngridients = event.target[1].value
+    recipeIngridients = recipeIngridients.split(',').join('__')
 
     if (recipeTitle) {
-      localStorage.setItem('_username_recipes_' + recipeTitle, recipeTitle + '__' + recipeIngridients);
-      this.setState({ addForm: '' });
-      this.props.getRecipes();
+      localStorage.setItem('_username_recipes_' + recipeTitle, recipeTitle + '__' + recipeIngridients)
+      this.setState({ addForm: '' })
+      this.props.getRecipes()
     }
   }
 
-  onAddClick() {
+  onAddClick = () => {
     let formItem = (
-      <form className="edit-form" onSubmit={((event) => {this.addHandler(event);}).bind(this)}>
+      <form className="edit-form" onSubmit={((event) => {this.addHandler(event)})}>
         <div><input placeholder="Recipe title" type="text" /></div>
         <div><textarea placeholder="Ingridients" /></div>
         <div><input className="form-btn" value="Add recipe" type="submit" /></div>
       </form>
-    );
+    )
 
-    this.setState({ addForm: formItem });
+    this.setState({ addForm: formItem })
   }
 
   render() {
     if (!this.props.recipes) {
-      return (<div></div>);
+      return (<div></div>)
     } else if (!Object.keys(this.props.recipes).length) {
       return (
        <div className="recipe-list no-recipes">{this.noRecipes}
-					<button className="add-btn" onClick={this.onAddClick.bind(this)}>Add</button>
+					<button className="add-btn" onClick={this.onAddClick}>Add</button>
 					{this.state.addForm}
 				</div>
-      );
+      )
     }
 
     return (
       <div className="recipe-list">
         {this.renderRecipeList()}
-        <button className="add-btn" onClick={this.onAddClick.bind(this)}>Add</button>
+        <button className="add-btn" onClick={this.onAddClick}>Add</button>
         {this.state.addForm}
 			</div>
-    );
+    )
   }
 }
 
-function mapStateToProps(recipes) {
-  return { recipes: recipes.recipes.recipes };
-}
-
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ getRecipes }, dispatch);
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(RecipeList);
+export default connect(({recipes}) => ({
+  recipes: recipes.recipes
+}), {getRecipes})(RecipeList)

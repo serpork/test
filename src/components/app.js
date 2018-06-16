@@ -1,12 +1,4 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React from 'react'
+import RecipeList from '../containers/recipe_list'
 
-import RecipeList from '../containers/recipe_list';
-
-export default class App extends Component {
-  render() {
-    return (
-      <div><RecipeList /></div>
-    );
-  }
-}
+export default () => <div><RecipeList /></div>
